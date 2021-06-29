@@ -1,5 +1,7 @@
 import os
 from flask import Flask, url_for, request, render_template, redirect, flash
+from flask.helpers import make_response
+from werkzeug.wrappers import response
 
 app = Flask(__name__)
 
@@ -40,15 +42,31 @@ def login_validate():
         password = request.form["password"]
         if validate_user(username, password):
             flash("Logged in successfully")
-            return redirect(url_for('dashboard', username=username))
+            response = make_response(
+                redirect(url_for('dashboard')))
+            response.set_cookie('username', username)
+            return response
         else:
             error = "Username/Password is wrong"
             return render_template("login.html", error=error)
 
 
-@app.route('/dashboard/<username>')
-def dashboard(username):
-    return render_template("dashboard.html", username=username)
+@app.route('/logout')
+def logout():
+    response = make_response(redirect(url_for('login')))
+    response.set_cookie('username', '', 0)
+    flash('You have logged out')
+    return response
+
+
+@app.route('/dashboard/')
+def dashboard():
+    username = request.cookies.get('username')
+    if username:
+        return render_template("dashboard.html", username=username)
+    else:
+        flash('You are not logged in')
+        return redirect(url_for('login'))
 
 
 def validate_user(username, password):

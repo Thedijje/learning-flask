@@ -1,5 +1,6 @@
 from logging import Handler, handlers
 import os
+import pymysql
 from flask import Flask, url_for, request, render_template, redirect, flash, session
 from flask.helpers import make_response
 from werkzeug.wrappers import response
@@ -53,8 +54,9 @@ def login_validate():
             return response
         else:
             error = "Username/Password is wrong"
+            flash(error)
             app.logger.warning("Failed user login by user "+username)
-            return render_template("login.html", error=error)
+            return render_template("login.html")
 
 
 @app.route('/logout')
@@ -76,7 +78,27 @@ def dashboard():
 
 
 def validate_user(username, password):
-    if username == password:
+
+    # DB
+    MYSQL_DATABASE_HOST = os.getenv('IP', '0.0.0.0')
+    MYSQL_DATABASE_USER = os.getenv('db_user', 'root')
+    MYSQL_DATABASE_PASSWORD = os.getenv('db_password', 'root')
+    MYSQL_DATABASE_NAME = os.getenv('db_name', 'flask_blog')
+
+    conn = pymysql.Connect(
+        host=MYSQL_DATABASE_HOST,
+        user=MYSQL_DATABASE_USER,
+        passwd=MYSQL_DATABASE_PASSWORD,
+        db=MYSQL_DATABASE_NAME
+    )
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT * FROM users where username='%s' AND password='%s'" % (username, password))
+    valid_user = cursor.fetchone()
+
+    if valid_user:
         return True
     else:
         return False

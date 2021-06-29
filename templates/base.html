@@ -18,7 +18,7 @@
     <hr>
     {% with messages = get_flashed_messages() %} 
     {% if messages %}
-        <ul>
+        <ul style="color:rgb(145, 24, 24);background:rgb(233, 171, 171);border:1px solid red;padding:10px">
             {% for message in messages %}
             <li>{{ message }}<li>
             {% endfor %}

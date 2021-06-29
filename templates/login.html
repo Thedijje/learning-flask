@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}
+Login
+{% endblock %}
+
+{% block content %}
+
+<form action="{{ url_for('login_validate') }}" method="post">
+    {% if error %}
+        <p style="color:rgb(145, 24, 24);background:rgb(233, 171, 171);border:1px solid red;padding:10px">
+            {{ error }}
+        </p>
+    {% endif %}
+    <div>
+        <label for="">Enter username</label>
+        <input type="text" name="username" id="username">
+    </div>
+    <div>
+        <label for="">Enter password</label>
+        <input type="text" name="password" id="password">
+    </div>
+
+    <div>
+        <button>Login</button>
+    </div>
+</form>
+
+{% endblock %}

@@ -1,7 +1,12 @@
+from logging import Handler, handlers
 import os
 from flask import Flask, url_for, request, render_template, redirect, flash, session
 from flask.helpers import make_response
 from werkzeug.wrappers import response
+
+
+import logging
+from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__)
 
@@ -48,6 +53,7 @@ def login_validate():
             return response
         else:
             error = "Username/Password is wrong"
+            app.logger.warning("Failed user login by user "+username)
             return render_template("login.html", error=error)
 
 
@@ -81,4 +87,10 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', '5050'))
     app.debug = True
     app.secret_key = '-de\xd3Hb<\x96\x14\x8cy\x85e~n\x155ds6QId\xa6'
+
+    # logging
+    handlers = RotatingFileHandler(
+        "writable/log/error.log", maxBytes=10000, backupCount=1)
+    handlers.setLevel(logging.INFO)
+    app.logger.addHandler(handlers)
     app.run(host=host, port=port)

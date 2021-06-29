@@ -1,5 +1,5 @@
 import os
-from flask import Flask, url_for, request, render_template, redirect, flash
+from flask import Flask, url_for, request, render_template, redirect, flash, session
 from flask.helpers import make_response
 from werkzeug.wrappers import response
 
@@ -44,7 +44,7 @@ def login_validate():
             flash("Logged in successfully")
             response = make_response(
                 redirect(url_for('dashboard')))
-            response.set_cookie('username', username)
+            session['username'] = username
             return response
         else:
             error = "Username/Password is wrong"
@@ -54,15 +54,15 @@ def login_validate():
 @app.route('/logout')
 def logout():
     response = make_response(redirect(url_for('login')))
-    response.set_cookie('username', '', 0)
+    session.pop('username', None)
     flash('You have logged out')
     return response
 
 
 @app.route('/dashboard/')
 def dashboard():
-    username = request.cookies.get('username')
-    if username:
+    if 'username' in session:
+        username = session['username']
         return render_template("dashboard.html", username=username)
     else:
         flash('You are not logged in')
@@ -80,5 +80,5 @@ if __name__ == '__main__':
     host = os.getenv('IP', '0.0.0.0')
     port = int(os.getenv('PORT', '5050'))
     app.debug = True
-    app.secret_key = 'superKey'
+    app.secret_key = '-de\xd3Hb<\x96\x14\x8cy\x85e~n\x155ds6QId\xa6'
     app.run(host=host, port=port)
